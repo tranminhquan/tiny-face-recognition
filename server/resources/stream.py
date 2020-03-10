@@ -1,0 +1,83 @@
+import os
+dirname = os.path.dirname(__file__)
+os.sys.path.append(dirname)
+
+from flask import Response
+from flask_restful import fields, marshal_with, reqparse, Resource
+import io
+from ..ai.models.cv.detection import FaceDetection
+from ..ai.models.cv.recognition import FaceRecognition
+from ..ai.utils.stream_utils import VideoCapture
+
+import cv2
+import numpy as np
+import threading
+
+# print(os.path.exists('../ai/models/cv/demo_face_model.hdf5'))
+
+class Stream(Resource):
+    def __init__(self):
+        super()
+        # self.vc = cv2.VideoCapture(0)
+        self.vc = VideoCapture(0)
+        self.cropped_frame = None
+        self.detector = FaceDetection()
+        self.predictor = FaceRecognition(['demo_face_model.hdf5'], 'demo_label_dict.hdf5')
+        self.label = None
+        self.prob = None
+
+        self.t_post = threading.Thread(target=self.post)
+        self.t_post.daemon = True
+        self.t_post.start()
+
+
+    def gen(self):
+        """Video streaming generator function."""
+
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = 1
+        font_color = (0,255,0)
+        line_type = 2
+
+        while True:
+            # read_return_code, frame = self.vc.read()
+            frame = self.vc.read()
+
+            # detect
+            try:
+                tframe, self.cropped_frame = self.detector.detect(frame)
+                if self.cropped_frame is not None:
+                    _, self.label, self.prob = self.predictor.predict(self.cropped_frame, 0)
+                    cv2.putText(tframe, str(self.label) + ': ' + str(self.prob), (10,30), font, font_scale, font_color, line_type)
+
+                encode_return_code, image_buffer = cv2.imencode('.jpg', tframe)
+
+            except:
+                cv2.putText(frame, 'No detection', (10,30), font, font_scale, font_color, line_type)
+                encode_return_code, image_buffer = cv2.imencode('.jpg', frame)
+
+            io_buf = io.BytesIO(image_buffer)
+
+            yield (b'--frame\r\n'
+                b'Content-Type: image/jpeg\r\n\r\n' + io_buf.read() + b'\r\n')
+
+            # predict
+            # _, str_label, prob = self.predictor.predict(cropped_frame, 0)
+
+            # print(str_label, prob)
+
+    def get(self):
+        # detect
+        return Response(self.gen(), 
+                        mimetype='multipart/x-mixed-replace; boundary=frame')
+
+    def post(self):
+        # if self.cropped_frame is None:
+        #     return {'label': 'None', 'prob': 'None'}
+
+        # # recognition
+        # _, str_label, prob = self.predictor.predict(self.cropped_frame, 0)
+        # print(str_label, prob)
+
+        return {'label': self.label, 'prob': self.prob}
+        

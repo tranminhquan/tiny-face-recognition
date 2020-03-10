@@ -1,0 +1,7 @@
+{
+    "name": "FaceCollection",
+    "version": "0.0.0",
+    "private": true,
+    "main": "./FaceCollection.js"
+  }
+  
