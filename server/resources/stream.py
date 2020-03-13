@@ -52,41 +52,36 @@ class Stream(Resource):
         while True:
             # read_return_code, frame = self.vc.read()
             frame = self.vc.read()
-            imencoded = cv2.imencode('.jpg', frame)[1]
-            _file = {'images': ('image.jpg', imencoded.tostring(), 'image/jpeg', {'Expires': '0'})}
+            # imencoded = cv2.imencode('.jpg', frame)[1]
 
-            io_buf = io.BytesIO(imencoded)
-            yield (b'--frame\r\n'
-                b'Content-Type: image/jpeg\r\n\r\n' + io_buf.read() + b'\r\n')
-
-            # requests.post(colab_url, files=_file, stream=True)
-            # response = requests.post(colab_url, files=_file, timeout=5)
-            # print(response)
-
-            
-
-            # # detect
-            # try:
-            #     tframe, self.cropped_frame = self.detector.detect(frame)
-            #     if self.cropped_frame is not None:
-            #         _, self.label, self.prob = self.predictor.predict(self.cropped_frame, 0)
-            #         cv2.putText(tframe, str(self.label) + ': ' + str(self.prob), (10,30), font, font_scale, font_color, line_type)
-
-            #     encode_return_code, image_buffer = cv2.imencode('.jpg', tframe)
-
-            # except:
-            #     cv2.putText(frame, 'No detection', (10,30), font, font_scale, font_color, line_type)
-            #     encode_return_code, image_buffer = cv2.imencode('.jpg', frame)
-
-            # io_buf = io.BytesIO(image_buffer)
-
+            # io_buf = io.BytesIO(imencoded)
             # yield (b'--frame\r\n'
             #     b'Content-Type: image/jpeg\r\n\r\n' + io_buf.read() + b'\r\n')
 
-            # predict
-            # _, str_label, prob = self.predictor.predict(cropped_frame, 0)
+           
 
-            # print(str_label, prob)
+            # detect
+            try:
+                tframe, self.cropped_frame = self.detector.detect(frame)
+                if self.cropped_frame is not None:
+                    _, self.label, self.prob = self.predictor.predict(self.cropped_frame, 0)
+                    cv2.putText(tframe, str(self.label) + ': ' + str(self.prob), (10,30), font, font_scale, font_color, line_type)
+
+                encode_return_code, image_buffer = cv2.imencode('.jpg', tframe)
+
+            except:
+                cv2.putText(frame, 'No detection', (10,30), font, font_scale, font_color, line_type)
+                encode_return_code, image_buffer = cv2.imencode('.jpg', frame)
+
+            io_buf = io.BytesIO(image_buffer)
+
+            yield (b'--frame\r\n'
+                b'Content-Type: image/jpeg\r\n\r\n' + io_buf.read() + b'\r\n')
+
+            predict
+            _, str_label, prob = self.predictor.predict(cropped_frame, 0)
+
+            print(str_label, prob)
 
     def get(self):
         # detect
