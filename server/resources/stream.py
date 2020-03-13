@@ -32,7 +32,7 @@ class Stream(Resource):
 
         self.cropped_frame = None
         self.detector = FaceDetection()
-        self.predictor = FaceRecognition(['demo_face_model.hdf5'], 'demo_label_dict.hdf5')
+        self.predictor = FaceRecognition(['demo_cropped_model.hdf5'], 'demo_label_dict.hdf5')
         self.label = None
         self.prob = None
 
@@ -78,10 +78,10 @@ class Stream(Resource):
             yield (b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + io_buf.read() + b'\r\n')
 
-            predict
-            _, str_label, prob = self.predictor.predict(cropped_frame, 0)
+            #predict
+            # _, str_label, prob = self.predictor.predict(cropped_frame, 0)
 
-            print(str_label, prob)
+            # print(str_label, prob)
 
     def get(self):
         # detect
