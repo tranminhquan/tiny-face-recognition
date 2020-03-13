@@ -13,13 +13,23 @@ import cv2
 import numpy as np
 import threading
 
+import requests
+
 # print(os.path.exists('../ai/models/cv/demo_face_model.hdf5'))
+
+colab_url = 'http://cff575e4.ngrok.io/' + '/recognize'
+addr = 'rtsp://admin:admin@192.168.3.22:554' ### user= admin, pass = admin
 
 class Stream(Resource):
     def __init__(self):
         super()
         # self.vc = cv2.VideoCapture(0)
-        self.vc = VideoCapture(0)
+        try:
+            self.vc = VideoCapture(addr)
+        except:
+            print('Cannot connect to IP Cam, using local instead ...')
+            self.vc = VideoCapture(0)
+
         self.cropped_frame = None
         self.detector = FaceDetection()
         self.predictor = FaceRecognition(['demo_face_model.hdf5'], 'demo_label_dict.hdf5')
@@ -42,24 +52,36 @@ class Stream(Resource):
         while True:
             # read_return_code, frame = self.vc.read()
             frame = self.vc.read()
+            imencoded = cv2.imencode('.jpg', frame)[1]
+            _file = {'images': ('image.jpg', imencoded.tostring(), 'image/jpeg', {'Expires': '0'})}
 
-            # detect
-            try:
-                tframe, self.cropped_frame = self.detector.detect(frame)
-                if self.cropped_frame is not None:
-                    _, self.label, self.prob = self.predictor.predict(self.cropped_frame, 0)
-                    cv2.putText(tframe, str(self.label) + ': ' + str(self.prob), (10,30), font, font_scale, font_color, line_type)
-
-                encode_return_code, image_buffer = cv2.imencode('.jpg', tframe)
-
-            except:
-                cv2.putText(frame, 'No detection', (10,30), font, font_scale, font_color, line_type)
-                encode_return_code, image_buffer = cv2.imencode('.jpg', frame)
-
-            io_buf = io.BytesIO(image_buffer)
-
+            io_buf = io.BytesIO(imencoded)
             yield (b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + io_buf.read() + b'\r\n')
+
+            # requests.post(colab_url, files=_file, stream=True)
+            # response = requests.post(colab_url, files=_file, timeout=5)
+            # print(response)
+
+            
+
+            # # detect
+            # try:
+            #     tframe, self.cropped_frame = self.detector.detect(frame)
+            #     if self.cropped_frame is not None:
+            #         _, self.label, self.prob = self.predictor.predict(self.cropped_frame, 0)
+            #         cv2.putText(tframe, str(self.label) + ': ' + str(self.prob), (10,30), font, font_scale, font_color, line_type)
+
+            #     encode_return_code, image_buffer = cv2.imencode('.jpg', tframe)
+
+            # except:
+            #     cv2.putText(frame, 'No detection', (10,30), font, font_scale, font_color, line_type)
+            #     encode_return_code, image_buffer = cv2.imencode('.jpg', frame)
+
+            # io_buf = io.BytesIO(image_buffer)
+
+            # yield (b'--frame\r\n'
+            #     b'Content-Type: image/jpeg\r\n\r\n' + io_buf.read() + b'\r\n')
 
             # predict
             # _, str_label, prob = self.predictor.predict(cropped_frame, 0)
