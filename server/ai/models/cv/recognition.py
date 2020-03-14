@@ -25,7 +25,7 @@ class FaceRecognition():
             m_paths = os.listdir(os.path.join(os.path.dirname(__file__), 'demo'))
             # print(m_paths)
 
-            self.models = [load_model(os.path.join(os.path.dirname(__file__), 'demo', path), compile=False) for path in m_paths]
+            self.models = [load_model(os.path.join(os.path.dirname(__file__), 'demo', path)) for path in m_paths]
             self.sizes = [k.input_shape[1] for k in self.models]
             
             print(len(self.models), ' models with sizes: ', self.sizes)
@@ -47,9 +47,9 @@ class FaceRecognition():
         '''
 
         # find model index
-        if index is None:
+        if model_index is None:
             dist = np.array([abs(s - image.shape[0]) for s in self.sizes], dtype='float')
-            index = np.argmin(dist)
+            model_index = np.argmin(dist)
 
         with graph.as_default():
             # resize to fit the input
