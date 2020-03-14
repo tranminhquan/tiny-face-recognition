@@ -25,7 +25,7 @@ class Stream(Resource):
         super()
         # self.vc = cv2.VideoCapture(0)
         try:
-            self.vc = VideoCapture(0)
+            self.vc = VideoCapture(addr)
         except:
             print('Cannot connect to IP Cam, using local instead ...')
             self.vc = VideoCapture(0)
