@@ -25,14 +25,14 @@ class Stream(Resource):
         super()
         # self.vc = cv2.VideoCapture(0)
         try:
-            self.vc = VideoCapture(addr)
+            self.vc = VideoCapture(0)
         except:
             print('Cannot connect to IP Cam, using local instead ...')
             self.vc = VideoCapture(0)
 
         self.cropped_frame = None
         self.detector = FaceDetection()
-        self.predictor = FaceRecognition(['demo_cropped_model.hdf5'], 'demo_label_dict.hdf5')
+        self.predictor = FaceRecognition(None, 'demo_label_dict.hdf5')
         self.label = None
         self.prob = None
 
@@ -64,7 +64,7 @@ class Stream(Resource):
             try:
                 tframe, self.cropped_frame = self.detector.detect(frame)
                 if self.cropped_frame is not None:
-                    _, self.label, self.prob = self.predictor.predict(self.cropped_frame, 0)
+                    _, self.label, self.prob = self.predictor.predict(self.cropped_frame, None)
                     cv2.putText(tframe, str(self.label) + ': ' + str(self.prob), (10,30), font, font_scale, font_color, line_type)
 
                 encode_return_code, image_buffer = cv2.imencode('.jpg', tframe)

@@ -1,5 +1,5 @@
 
-from flask_ngrok import run_with_ngrok
+# from flask_ngrok import run_with_ngrok
 from flask import Flask, Blueprint
 from flask_restful import Api
 from flask_pymongo import PyMongo
@@ -26,7 +26,7 @@ os.sys.path.append(dirname)
 app = Flask(__name__, static_url_path='/static')
 CORS(app)
 api = Api(app)
-run_with_ngrok(app)
+# run_with_ngrok(app)
 
 mongo = init_database()
 # add_sample_data(mongo)
@@ -67,5 +67,5 @@ def video_feed():
 )
 
 if __name__=='__main__':
-    # app.run(host='0.0.0.0:5000', debug=True, threaded=True)
-    app.run(host='0.0.0.0:5000')
+    app.run(host='0.0.0.0:5000', debug=True, threaded=True)
+    # app.run(host='0.0.0.0:5000')

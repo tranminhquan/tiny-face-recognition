@@ -8,6 +8,7 @@ import numpy as np
 from skimage.transform import resize
 import pickle
 import tensorflow as tf
+from keras.optimizers import Adam
 
 global graph
 graph = tf.get_default_graph()
@@ -19,16 +20,23 @@ class FaceRecognition():
     model_path: [str], path to saved model
     label_dict_path: str, path to label dictonary file (mapping between number and text label)
     '''
-    def __init__(self, model_paths, label_dict_path):
+    def __init__(self, model_paths=None, label_dict_path=None):
         with graph.as_default():
-            self.models = [load_model(os.path.join(os.path.dirname(__file__), path)) for path in model_paths]
+            m_paths = os.listdir(os.path.join(os.path.dirname(__file__), 'demo'))
+            # print(m_paths)
+
+            self.models = [load_model(os.path.join(os.path.dirname(__file__), 'demo', path), compile=False) for path in m_paths]
+            self.sizes = [k.input_shape[1] for k in self.models]
+            
+            print(len(self.models), ' models with sizes: ', self.sizes)
+
             K.set_learning_phase(0)
 
             with open(os.path.join(os.path.dirname(__file__), label_dict_path), 'rb') as dt:
                 self.label_dict = pickle.load(dt)
 
 
-    def predict(self, image, model_index=0):
+    def predict(self, image, model_index=None):
         '''
         predict label of image based on index of loaded model
         ----------------------
@@ -37,6 +45,11 @@ class FaceRecognition():
             str_label: text label
             prob: probability
         '''
+
+        # find model index
+        if index is None:
+            dist = np.array([abs(s - image.shape[0]) for s in self.sizes], dtype='float')
+            index = np.argmin(dist)
 
         with graph.as_default():
             # resize to fit the input
