@@ -11,7 +11,7 @@ from ..ai.utils.stream_utils import VideoCapture
 
 import cv2
 import numpy as np
-import threading, queue
+import threading
 
 import requests
 
@@ -23,11 +23,6 @@ addr = 'rtsp://admin:admin@192.168.3.22:554' ### user= admin, pass = admin
 class Stream(Resource):
     def __init__(self):
         super()
-        t = threading.Thread(target=self.gen)
-        t.daemon = True
-        t.start()
-        self.q = queue.Queue()
-        self.stop = False
         # self.vc = cv2.VideoCapture(0)
         try:
             self.vc = VideoCapture(addr)
@@ -80,20 +75,8 @@ class Stream(Resource):
 
             io_buf = io.BytesIO(image_buffer)
 
-            if self.stop is True:
-                break
-            if not self.q.empty():
-                try:
-                    self.q.get_nowait()   # discard previous (unprocessed) frame
-                except queue.Empty:
-                    pass
-            # bytes_data = io.BytesIO()
-            # frame.save(bytes_data, format='JPEG')
-            self.q.put(b'--frame\r\n'
+            yield (b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + io_buf.read() + b'\r\n')
-
-            # yield (b'--frame\r\n'
-            #     b'Content-Type: image/jpeg\r\n\r\n' + io_buf.read() + b'\r\n')
 
             #predict
             # _, str_label, prob = self.predictor.predict(cropped_frame, 0)
@@ -102,7 +85,7 @@ class Stream(Resource):
 
     def get(self):
         # detect
-        return Response(self.q.get(), 
+        return Response(self.gen(), 
                         mimetype='multipart/x-mixed-replace; boundary=frame')
 
     def post(self):
