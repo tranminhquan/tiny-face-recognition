@@ -31,7 +31,7 @@ class Stream(Resource):
             self.vc = VideoCapture(0)
 
         self.cropped_frame = None
-        self.detector = FaceDetection()
+        self.detector = FaceDetection(MAX_FRAMES=3)
         self.predictor = FaceRecognition(None, 'demo_label_dict.hdf5')
         self.label = None
         self.prob = None
@@ -43,6 +43,8 @@ class Stream(Resource):
 
     def gen(self):
         """Video streaming generator function."""
+
+        colors = [(255,0,0), (0,255,0), (0,0,255), (255,255,0), (0,255,255), (255,0,255), (0,0,0)]
 
         font = cv2.FONT_HERSHEY_SIMPLEX
         font_scale = 1
@@ -63,9 +65,12 @@ class Stream(Resource):
             # detect
             try:
                 tframe, self.cropped_frame = self.detector.detect(frame)
-                # if self.cropped_frame is not None:
-                #     _, self.label, self.prob = self.predictor.predict(self.cropped_frame, None)
-                #     cv2.putText(tframe, str(self.label) + ': ' + str(self.prob), (10,30), font, font_scale, font_color, line_type)
+                if self.cropped_frame is not None:
+
+                    for i,fr in enumerate(self.cropped_frame):
+                        _, self.label, self.prob = self.predictor.predict(fr, None)
+                        cv2.putText(tframe, str(self.label) + ': ' + str(self.prob), (10,30 +i*10), 
+                                    font, font_scale, colors[i], line_type)
 
                 encode_return_code, image_buffer = cv2.imencode('.jpg', tframe)
 
