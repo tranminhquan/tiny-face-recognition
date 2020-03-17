@@ -63,9 +63,9 @@ class Stream(Resource):
             # detect
             try:
                 tframe, self.cropped_frame = self.detector.detect(frame)
-                if self.cropped_frame is not None:
-                    _, self.label, self.prob = self.predictor.predict(self.cropped_frame, None)
-                    cv2.putText(tframe, str(self.label) + ': ' + str(self.prob), (10,30), font, font_scale, font_color, line_type)
+                # if self.cropped_frame is not None:
+                #     _, self.label, self.prob = self.predictor.predict(self.cropped_frame, None)
+                #     cv2.putText(tframe, str(self.label) + ': ' + str(self.prob), (10,30), font, font_scale, font_color, line_type)
 
                 encode_return_code, image_buffer = cv2.imencode('.jpg', tframe)
 
