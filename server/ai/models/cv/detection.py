@@ -8,8 +8,10 @@ class FaceDetection():
     '''
     Face detection using Cascade from opencv
     '''
-    def __init__(self):
+    def __init__(self, MAX_FRAMES=3):
         self.classifier = cv2.CascadeClassifier(os.path.join(dirname, './haarcascade_frontalface_default.xml'))
+        self.max_frames = MAX_FRAMES
+        self.colors = [(255,0,0), (0,255,0), (0,0,255), (255,255,0), (0,255,255), (255,0,255), (0,0,0)]
 
     def detect(self, frame):
         '''
@@ -19,7 +21,7 @@ class FaceDetection():
         -------------
         Return
             frame with drawed bounding box
-            cropped bounding box
+            list of cropped bounding box
         '''
         frame = np.asarray(frame, dtype=np.uint8)
         if np.max(frame) <= 1:
@@ -29,6 +31,15 @@ class FaceDetection():
         if len(boxes) == 0:
             return None, None
 
-        return cv2.rectangle(frame, (boxes[0][0], boxes[0][1]), 
-                            (boxes[0][0] + boxes[0][2], boxes[0][1] + boxes[0][3]), 
-                            (255,0,0), 3), frame[boxes[0][1]:boxes[0][1]+boxes[0][3], boxes[0][0]:boxes[0][0]+boxes[0][2]]
+        cropped_images = []
+        drawed_frame = frame
+
+        for i in range(len(boxes)):
+            if i >= self.max_frames:
+                break
+            cropped_images.append(frame[boxes[i][1]:boxes[i][1]+boxes[i][3], boxes[i][0]:boxes[i][0]+boxes[i][2]])
+            drawed_frame = cv2.rectangle(drawed_frame, (boxes[i][0], boxes[i][1]), 
+                            (boxes[i][0] + boxes[i][2], boxes[i][1] + boxes[i][3]), 
+                            self.colors[i], 3)
+
+        return drawed_frame, cropped_images
