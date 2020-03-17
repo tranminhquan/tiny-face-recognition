@@ -69,7 +69,7 @@ class Stream(Resource):
 
                     for i,fr in enumerate(self.cropped_frame):
                         _, self.label, self.prob = self.predictor.predict(fr, None)
-                        cv2.putText(tframe, str(self.label) + ': ' + str(self.prob), (10,30 +i*10), 
+                        cv2.putText(tframe, str(self.label) + ': ' + str(self.prob), (10 + 50*i,30), 
                                     font, font_scale, colors[i], line_type)
 
                 encode_return_code, image_buffer = cv2.imencode('.jpg', tframe)
