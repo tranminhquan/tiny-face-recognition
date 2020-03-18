@@ -9,7 +9,7 @@ from skimage.transform import resize
 import pickle
 import tensorflow as tf
 from keras.optimizers import Adam
-from ....ai.utils.visualization import visualize_cam
+from ai.utils.visualization import visualize_cam
 
 global graph
 graph = tf.get_default_graph()
