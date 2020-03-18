@@ -31,7 +31,7 @@ class FaceRecognition():
             
             print(len(self.models), ' models with sizes: ', self.sizes)
 
-            K.set_learning_phase(0)
+            # K.set_learning_phase(0)
 
             with open(os.path.join(os.path.dirname(__file__), label_dict_path), 'rb') as dt:
                 self.label_dict = pickle.load(dt)
