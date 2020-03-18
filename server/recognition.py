@@ -43,6 +43,7 @@ while (cam.isOpened()):
             cv2.putText(tframe, str(label) + ': ' + str(prob), (10 + 400*i,30), font, font_scale, colors[i], line_type)
 
         out_frame = stack_images(tframe, cropped_frames, cams)
+        out_frame = np.asarray(out_frame*255, dtype=np.uint8)
         out.write(out_frame)
 
     else:
