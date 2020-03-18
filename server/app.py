@@ -45,7 +45,7 @@ api.add_resource(Prediction, '/predict')
 api.add_resource(Training, '/training')
 api.add_resource(Upload, '/upload/<path>')
 api.add_resource(Dataset, '/dataset')
-# api.add_resource(Stream, '/stream')
+api.add_resource(Stream, '/stream')
 
 addr = 'rtsp://admin:admin@192.168.3.22:554' ### user= admin, pass = admin
 vc = cv2.VideoCapture(addr)
