@@ -9,7 +9,7 @@ from .resources.prediction import Prediction
 from .resources.training import Training
 # from .resources.upload import Upload
 from .resources.dataset import Dataset
-# from .resources.stream import Stream
+from .resources.stream import Stream
 from flask_cors import CORS
 
 import cv2
@@ -28,7 +28,7 @@ CORS(app)
 api = Api(app)
 # run_with_ngrok(app)
 
-mongo = init_database()
+# mongo = init_database()
 # add_sample_data(mongo)
 
 class Upload(Resource):
