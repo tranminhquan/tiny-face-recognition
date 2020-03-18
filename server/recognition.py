@@ -12,7 +12,7 @@ parser.add_argument('-s', '--save', help='path to save video')
 
 args = parser.parse_args()
 
-cam = cv2.VideoCapture(args.path)
+cap = cv2.VideoCapture(args.path)
 
 detector = FaceDetection(MAX_FRAMES=1)
 predictor = FaceRecognition(None, './demo_label_dict.hdf5')
@@ -26,7 +26,7 @@ font_scale = 1
 font_color = (0,255,0)
 line_type = 2
 
-while (cam.isOpened()):
+while (cap.isOpened()):
     ret, frame = cam.read()
     cams = []
 
@@ -53,6 +53,6 @@ while (cam.isOpened()):
     if cv2.waitKey(25) & 0xFF == ord('q'):
         break
 
-cam.release()
+cap.release()
 
 
