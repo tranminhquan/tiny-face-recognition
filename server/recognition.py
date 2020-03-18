@@ -15,7 +15,7 @@ args = parser.parse_args()
 cam = cv2.VideoCapture(args.path)
 
 detector = FaceDetection(MAX_FRAMES=1)
-predictor = FaceRecognition(None, './ai/models/cv/demo_label_dict.hdf5')
+predictor = FaceRecognition(None, './demo_label_dict.hdf5')
 
 out = cv2.VideoWriter(args.path, cv2.VideoWriter_fourcc('M','J','P','G'), 15, (cam.get(3), cam.get(4)))
 
