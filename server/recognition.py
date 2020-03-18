@@ -27,7 +27,7 @@ font_color = (0,255,0)
 line_type = 2
 
 while (cap.isOpened()):
-    ret, frame = cam.read()
+    ret, frame = cap.read()
     cams = []
 
     if ret is False:
