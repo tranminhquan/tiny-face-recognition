@@ -8,6 +8,7 @@ import io
 from ..ai.models.cv.detection import FaceDetection
 from ..ai.models.cv.recognition import FaceRecognition
 from ..ai.utils.stream_utils import VideoCapture
+from ..ai.utils.visualization import stack_images
 
 import cv2
 import numpy as np
@@ -54,6 +55,7 @@ class Stream(Resource):
         while True:
             # read_return_code, frame = self.vc.read()
             frame = self.vc.read()
+            cams = []
             # imencoded = cv2.imencode('.jpg', frame)[1]
 
             # io_buf = io.BytesIO(imencoded)
@@ -68,11 +70,16 @@ class Stream(Resource):
                 if self.cropped_frame is not None:
 
                     for i,fr in enumerate(self.cropped_frame):
-                        _, self.label, self.prob = self.predictor.predict(fr, None)
+                        # _, self.label, self.prob = self.predictor.predict(fr, None)
+                        _, self.label, self.prob, cam = self.predictor.predict_with_heatmap(fr, None)
+                        cams.append(cam)
                         cv2.putText(tframe, str(self.label) + ': ' + str(self.prob), (10 + 400*i,30), 
                                     font, font_scale, colors[i], line_type)
 
-                encode_return_code, image_buffer = cv2.imencode('.jpg', tframe)
+                # encode_return_code, image_buffer = cv2.imencode('.jpg', tframe)
+
+                encoded_frame = stack_images(tframe, self.cropped_frame, cams)
+                encode_return_code, image_buffer = cv2.imencode('.jpg', encoded_frame)
 
             except:
                 cv2.putText(frame, 'No detection', (10,30), font, font_scale, font_color, line_type)

@@ -73,7 +73,7 @@ class FaceRecognition extends Component{
             <div className="animated fadeIn">
                 <Row>
                     <Col>
-                        <img src="http://localhost:5000/stream"/>
+                        <img src="http://celeb.kyanon.digital/stream"/>
                         <Button onClick={() => {setInterval(this.predict, 500);}}>Predict</Button>
                     </Col>
 

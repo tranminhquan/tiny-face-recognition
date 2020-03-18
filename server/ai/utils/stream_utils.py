@@ -18,7 +18,7 @@ class VideoCapture:
 
     # read frames as soon as they are available, keeping only most recent one
     def _reader(self):
-        while True:
+        while self.cap.isOpened:
             ret, frame = self.cap.read()
             # frame, cropped_frame = self.detector.detect(frame)
 

@@ -9,6 +9,7 @@ from skimage.transform import resize
 import pickle
 import tensorflow as tf
 from keras.optimizers import Adam
+from ....ai.utils.visualization import visualize_cam
 
 global graph
 graph = tf.get_default_graph()
@@ -34,7 +35,6 @@ class FaceRecognition():
 
             with open(os.path.join(os.path.dirname(__file__), label_dict_path), 'rb') as dt:
                 self.label_dict = pickle.load(dt)
-
 
     def predict(self, image, model_index=None):
         '''
@@ -79,6 +79,48 @@ class FaceRecognition():
             print(str_label)
 
             return num_label, str_label, prob
+
+    def predict_with_heatmap(self, image, model_index=None):
+        '''
+        predict label of image based on index of loaded model
+        ----------------------
+        Return:
+            num_label: int
+            str_label: text label
+            prob: probability
+            cam: heatmap
+        '''
+
+        # find model index
+        if model_index is None:
+            dist = np.array([abs(s - image.shape[0]) for s in self.sizes], dtype='float')
+            model_index = np.argmin(dist)
+
+        with graph.as_default():
+            # resize to fit the input
+            if self.models[model_index].input_shape[3] == 1:
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+            image = np.asarray(image, dtype='float')
+            # print(image)
+            image /= 255.
+
+            image = resize(image, (self.models[model_index].input_shape[1], 
+                                    self.models[model_index].input_shape[2], 
+                                    self.models[model_index].input_shape[3]))
+
+            image = np.expand_dims(image, axis=0)
+            
+            num_label, prob, cam = visualize_cam(self.models[model_index], image, last_conv_layer_index=-5, learning_phase=0)
+            print(num_label)
+            
+            try:
+                str_label = self.label_dict[str(num_label[0])]
+            except:
+                str_label = None
+
+            return num_label, str_label, prob, cam
+
         
 
 
