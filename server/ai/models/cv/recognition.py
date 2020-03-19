@@ -23,8 +23,6 @@ class FaceRecognition():
     '''
     def __init__(self, model_paths=None, label_dict_path=None):
         with graph.as_default():
-            K.set_learning_phase(0)
-
             m_paths = os.listdir(os.path.join(os.path.dirname(__file__), 'demo'))
             # print(m_paths)
 
@@ -33,6 +31,7 @@ class FaceRecognition():
             self.funcs = [K.function([model.input, K.learning_phase()], [model.layers[-5].output, model.output]) for model in self.models]
             
             print(len(self.models), ' models with sizes: ', self.sizes)
+            print('K functions: ', self.funcs)
 
             # K.set_learning_phase(0)
 

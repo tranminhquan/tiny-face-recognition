@@ -67,16 +67,19 @@ class Stream(Resource):
             # detect
             try:
                 tframe, self.cropped_frame = self.detector.detect(frame)
+
                 if self.cropped_frame is not None:
 
                     for i,fr in enumerate(self.cropped_frame):
                         # _, self.label, self.prob = self.predictor.predict(fr, None)
+
                         _, self.label, self.prob, cam = self.predictor.predict_with_heatmap(fr, None)
+                        print(cam)
                         cams.append(cam)
                         cv2.putText(tframe, str(self.label) + ': ' + str(self.prob), (10 + 400*i,30), 
                                     font, font_scale, colors[i], line_type)
 
-                encode_return_code, image_buffer = cv2.imencode('.jpg', tframe)
+                #encode_return_code, image_buffer = cv2.imencode('.jpg', tframe)
 
                 # encoded_frame = stack_images(tframe, self.cropped_frame, cams)
                 encode_return_code, image_buffer = cv2.imencode('.jpg', tframe)

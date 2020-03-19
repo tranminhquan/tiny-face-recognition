@@ -29,10 +29,11 @@ def visualize_cam(model, func, image, path_to_save=None):
     # img = np.asarray(image, dtype='float')
     # if np.max(img) > 1:
     #     img /= 255.
-        
+
     # img = np.expand_dims(img, axis=0)
 
-    [conv_outputs, predictions] = func([img, K.learning_phase()])
+    [conv_outputs, predictions] = func([img, 0])
+    print(conv_outputs, predictions)
     conv_outputs = conv_outputs[0,:,:,:]
 
     '''Create the class activation map'''
