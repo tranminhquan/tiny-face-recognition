@@ -2,3 +2,5 @@ venv
 server/ai/demo_dataset.zip
 server/ai/models/cv/data/
 server/ai/dataset/minh_quan/
+test_record.avi
+result.avi
