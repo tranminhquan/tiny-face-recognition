@@ -114,8 +114,8 @@ class FaceRecognition():
 
             image = np.expand_dims(image, axis=0)
             
-            num_label, prob, cam = visualize_cam(self.models[model_index], self.funcs[model_index], image, last_conv_layer_index=-5, learning_phase=0)
-            # print(num_label)
+            num_label, prob, cam = visualize_cam(self.models[model_index], self.funcs[model_index], image)
+            print(num_label)
             
             try:
                 str_label = self.label_dict[str(num_label[0])]

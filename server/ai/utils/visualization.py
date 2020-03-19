@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 from skimage.transform import resize
 
-def visualize_cam(model, func, image, last_conv_layer_index, path_to_save=None):
+def visualize_cam(model, func, image, path_to_save=None):
     '''
   visualize class activation map function
   ----------------------------------------
