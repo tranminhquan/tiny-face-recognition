@@ -122,7 +122,7 @@ class FaceRecognition():
             except:
                 str_label = None
 
-            print(num_label, str_label)
+            #print(num_label, str_label)
 
             return num_label, str_label, prob, cam
 
