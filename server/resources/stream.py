@@ -86,11 +86,11 @@ class Stream(Resource):
                 #encode_return_code, image_buffer = cv2.imencode('.jpg', tframe)
 
                 # encoded_frame = stack_images(tframe, self.cropped_frame, cams)
-                    tframe = resize(tframe, (FRAME_HEIGHT, FRAME_WIDTH))
-                    tframe = np.asarray(tframe*255, dtype=np.uint8)
-                    rs = stack_images(tframe, self.cropped_frame, cams)
-                    print(rs)
-                    encode_return_code, image_buffer = cv2.imencode('.jpg', rs)
+                tframe = resize(tframe, (FRAME_HEIGHT, FRAME_WIDTH))
+                tframe = np.asarray(tframe*255, dtype=np.uint8)
+                rs = stack_images(tframe, self.cropped_frame, cams)
+                print(rs)
+                encode_return_code, image_buffer = cv2.imencode('.jpg', rs)
 
             except:
                 cv2.putText(frame, 'No detection', (10,30), font, font_scale, font_color, line_type)
