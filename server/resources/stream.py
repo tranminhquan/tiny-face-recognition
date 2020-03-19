@@ -72,8 +72,7 @@ class Stream(Resource):
             try:
                 tframe, self.cropped_frame = self.detector.detect(frame)
 
-                if self.cropped_frame is not None:
-
+                if len(self.cropped_frame) > 0:
                     for i,fr in enumerate(self.cropped_frame):
                         # _, self.label, self.prob = self.predictor.predict(fr, None)
 
@@ -90,7 +89,7 @@ class Stream(Resource):
                 tframe = np.asarray(tframe*255, dtype=np.uint8)
                 print(len(cams))
                 #rs = stack_images(tframe, self.cropped_frame, cams)
-                print(rs)
+                # print(rs)
                 encode_return_code, image_buffer = cv2.imencode('.jpg', tframe)
 
             except:

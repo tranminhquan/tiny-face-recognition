@@ -28,8 +28,6 @@ class FaceDetection():
             frame = frame*255
 
         boxes = self.classifier.detectMultiScale(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY))
-        if len(boxes) == 0:
-            return None, None
 
         cropped_images = []
         drawed_frame = frame
