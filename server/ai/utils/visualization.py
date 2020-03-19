@@ -60,12 +60,18 @@ def visualize_cam(model, func, image, path_to_save=None):
             
         return class_num, prob, cam
 
+def preprocess_uint8(image):
+    image = np.asarray(image)
+
+    if np.max(image) <= 1:
+        return np.asarray(image*255, dtype=np.uint8)
+    return np.asarray(image, dtype=np.uint8)
 
 def stack_images(frame, faces, cams, shape=(1000,1000,3)):
     rs = np.zeros(shape)
     frame = preprocess_uint8(frame)
 
-    if faces is None or cams is None:
+    if faces is None or cams is None or len(faces) == 0:
         rs[0:frame.shape[0], 0:frame.shape[1], :] = frame
         rs = np.asarray(rs, dtype=np.uint8)
         return rs
@@ -73,7 +79,6 @@ def stack_images(frame, faces, cams, shape=(1000,1000,3)):
     
     faces = preprocess_uint8(faces)
     cams = preprocess_uint8(cams)
-    
     
     
     h = np.mean(np.array([k.shape[0] for k in faces]))
