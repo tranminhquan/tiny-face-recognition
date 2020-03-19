@@ -2,6 +2,10 @@ import keras.backend as K
 import numpy as np
 import cv2
 from skimage.transform import resize
+import tensorflow as tf
+
+global graph
+graph = tf.get_default_graph()
 
 def visualize_cam(model, func, image, path_to_save=None):
     '''
@@ -17,43 +21,44 @@ def visualize_cam(model, func, image, path_to_save=None):
   return:
     predictions: softmax vector
   '''
+    with graph.as_default():
 
-    '''Get weights of dense output layer'''
-    class_weights = model.layers[-3].get_weights()[0]
+        '''Get weights of dense output layer'''
+        class_weights = model.layers[-3].get_weights()[0]
 
-    '''Create the function to get last conv layer output and model output'''
-    # last_conv_layer = model.layers[last_conv_layer_index].output
-    # get_output = K.function([model.input, K.learning_phase()], [last_conv_layer, model.output])
-    img = image
-#     img = np.array([np.transpose(np.float32(image), (0, 1, 2))])
-    # img = np.asarray(image, dtype='float')
-    # if np.max(img) > 1:
-    #     img /= 255.
+        '''Create the function to get last conv layer output and model output'''
+        # last_conv_layer = model.layers[last_conv_layer_index].output
+        # get_output = K.function([model.input, K.learning_phase()], [last_conv_layer, model.output])
+        img = image
+    #     img = np.array([np.transpose(np.float32(image), (0, 1, 2))])
+        # img = np.asarray(image, dtype='float')
+        # if np.max(img) > 1:
+        #     img /= 255.
 
-    # img = np.expand_dims(img, axis=0)
+        # img = np.expand_dims(img, axis=0)
 
-    [conv_outputs, predictions] = func([img, 0])
-    print(conv_outputs, predictions)
-    conv_outputs = conv_outputs[0,:,:,:]
+        [conv_outputs, predictions] = func([img, 0])
+        print(conv_outputs, predictions)
+        conv_outputs = conv_outputs[0,:,:,:]
 
-    '''Create the class activation map'''
-    class_num = np.argmax(predictions, axis=1)[0]
-    prob = np.max(predictions, axis=1)[0]
-    cam = np.zeros(dtype=np.float32, shape=conv_outputs.shape[:2])
+        '''Create the class activation map'''
+        class_num = np.argmax(predictions, axis=1)[0]
+        prob = np.max(predictions, axis=1)[0]
+        cam = np.zeros(dtype=np.float32, shape=conv_outputs.shape[:2])
 
-    for i,w in enumerate(class_weights[:,class_num]):
-        cam += w*conv_outputs[:,:,i]
-    cam /= np.max(cam)
-    cam = resize(cam, (image.shape[0], image.shape[1]))
-    
-    cam = np.asarray(cam*255, dtype=np.uint8)
-    cam = np.clip(cam, 0, 255)
-    cam = cv2.applyColorMap(255-cam, cv2.COLORMAP_JET)
-    
-    if path_to_save is not None:
-        plt.savefig(path_to_save)
+        for i,w in enumerate(class_weights[:,class_num]):
+            cam += w*conv_outputs[:,:,i]
+        cam /= np.max(cam)
+        cam = resize(cam, (image.shape[0], image.shape[1]))
         
-    return class_num, prob, cam
+        cam = np.asarray(cam*255, dtype=np.uint8)
+        cam = np.clip(cam, 0, 255)
+        cam = cv2.applyColorMap(255-cam, cv2.COLORMAP_JET)
+        
+        if path_to_save is not None:
+            plt.savefig(path_to_save)
+            
+        return class_num, prob, cam
 
 
 def stack_images(frame, faces, cams, shape=(1000,1000,3)):
