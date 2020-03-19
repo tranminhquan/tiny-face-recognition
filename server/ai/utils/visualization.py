@@ -55,53 +55,48 @@ def visualize_cam(model, image, last_conv_layer_index, learning_phase=0, path_to
     return class_num, prob, cam
 
 
-def stack_images(frame, faces, cams):
-    if faces is None or len(faces)==0 or cams is None or len(cams)==0:
-        return frame
+def stack_images(frame, faces, cams, shape=(1000,1000,3)):
+    frame = preprocess_uint8(frame)
+    faces = preprocess_uint8(faces)
+    cams = preprocess_uint8(cams)
     
-    n_faces = len(faces)
-    n_cams = len(cams)
+    rs = np.zeros(shape)
     
-    frame = np.asarray(frame)
-    faces = np.asarray(faces)
-    cams = np.asarray(cams)
+    h = np.mean(np.array([k.shape[0] for k in faces]))
+    w = np.mean(np.array([k.shape[1] for k in faces]))
+  
     
-    if np.max(faces) <= 1:
-        faces = np.asarray(faces*255, dtype=np.uint8)
-    if np.max(cams) <= 1:
-        cams = np.asarray(cams*255, dtype=np.uint8)
+    # expand dims if needed
+    if len(faces[0].shape)==2:
+        faces = [np.expand_dims(k, axis=-1) for k in faces]
+    if len(cams[0].shape)==2:
+        cams = [np.expand_dims(k, axis=-1) for k in cams]
     
-    # convert grayscale 1-D to grayscale 3-D
-    if len(faces[0].shape) == 2:
-        faces = np.array([np.expand_dims(k, axis=-1) for k in faces])
-
+    # convert to 3-D
     if faces[0].shape[-1] == 1:
-        faces = np.array([cv2.cvtColor(k, cv2.COLOR_GRAY2BGR) for k in faces])
-        
-
-    # resize faces and cams into one size
-    h_face = np.mean(np.array([k.shape[0] for k in faces]))
-    w_face = np.mean(np.array([k.shape[1] for k in faces]))
+        faces = [cv2.cvtColor(k, cv2.COLOR_GRAY2BGR) for k in faces]
+    if cams[0].shape[-1] == 1:
+        cams = [cv2.cvtColor(k, cv2.COLOR_GRAY2BGR) for k in cams]
     
-    faces = np.array([resize(k, (h_face, w_face)) for k in faces])
-    cams = np.array([resize(k, (h_face, w_face)) for k in cams])
+    # resize
+    faces = [resize(k, (h,w)) for k in faces]
+    cams = [resize(k, (h,w)) for k in cams]
     
+    # preprocessing
+    frame = preprocess_uint8(frame)
+    faces = preprocess_uint8(faces)
+    cams = preprocess_uint8(cams)
     
-    if np.max(faces) <= 1:
-        faces = np.asarray(faces*255, dtype=np.uint8)
-    if np.max(cams) <= 1:
-        cams = np.asarray(cams*255, dtype=np.uint8)
+    fc_stack = np.hstack(faces)
+    cm_stack = np.hstack(cams)
+    info_stack = np.vstack([fc_stack, cm_stack])
     
-    face_stack = np.hstack(faces)
-    cam_stack = np.hstack(cams)
-    fc_stack = np.vstack([face_stack, cam_stack])
+    rs[0:frame.shape[0], 0:frame.shape[1], :] = frame
+    rs[0: info_stack.shape[0], -info_stack.shape[1]:, :] = info_stack
     
-    
-    info_stack = np.zeros((frame.shape[0], fc_stack.shape[1], 3))
-    info_stack[0:fc_stack.shape[0], :, :] = fc_stack
-    
-    rs = np.hstack([frame, info_stack])
-    
+    rs = np.asarray(rs, dtype=np.uint8)
+   
     return rs
+    
     
     

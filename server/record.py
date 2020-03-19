@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import argparse
+import ffmpy
 
 parser = argparse.ArgumentParser()
 
@@ -30,5 +31,10 @@ while True:
 
 cam.release()
 out.release()
+
+video_name = args.path
+ff = ffmpy.FFmpeg(inputs={args.path : None}, outputs={video_name: ' -c:a mp3 -c:v mpeg4'})
+ff.cmd
+ff.run()
 
 cv2.destroyAllWindows()
