@@ -36,7 +36,7 @@ class Stream(Resource):
             self.vc = VideoCapture(0)
 
         self.cropped_frame = None
-        self.detector = FaceDetection(MAX_FRAMES=3)
+        self.detector = FaceDetection(MAX_FRAMES=1)
         self.predictor = FaceRecognition(None, 'demo_label_dict.hdf5')
         self.label = None
         self.prob = None
@@ -77,24 +77,25 @@ class Stream(Resource):
                         # _, self.label, self.prob = self.predictor.predict(fr, None)
 
                         _, self.label, self.prob, cam = self.predictor.predict_with_heatmap(fr, None)
-                        #print(cam)
+                        
                         cams.append(cam)
                         cv2.putText(tframe, str(self.label) + ': ' + str(self.prob), (10 + 400*i,30), 
                                     font, font_scale, colors[i], line_type)
 
                 tframe = resize(tframe, (FRAME_HEIGHT, FRAME_WIDTH))
                 tframe = np.asarray(tframe*255, dtype=np.uint8)
-                print(len(cams))
+                #print(len(cams))
                 rs = stack_images(tframe, self.cropped_frame, cams)
-                print('stack frame: ', rs)
+                #print('stack frame: ', rs)
                 encode_return_code, image_buffer = cv2.imencode('.jpg', rs)
 
             except Exception as e:
                 print(e)
-                #cv2.putText(frame, 'No detection', (10,30), font, font_scale, font_color, line_type)
-                #frame = resize(frame, (FRAME_HEIGHT, FRAME_WIDTH))
-                #frame = np.asarray(frame*255, dtype=np.uint8)
-                #encode_return_code, image_buffer = cv2.imencode('.jpg', frame)
+                cv2.putText(frame, 'No detection', (10,30), font, font_scale, font_color, line_type)
+                frame = resize(frame, (FRAME_HEIGHT, FRAME_WIDTH))
+                frame = np.asarray(frame*255, dtype=np.uint8)
+                rs = stack_images(frame, None, None)
+                encode_return_code, image_buffer = cv2.imencode('.jpg', rs)
 
             io_buf = io.BytesIO(image_buffer)
 

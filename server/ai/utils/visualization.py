@@ -49,7 +49,7 @@ def visualize_cam(model, func, image, path_to_save=None):
         for i,w in enumerate(class_weights[:,class_num]):
             cam += w*conv_outputs[:,:,i]
         cam /= np.max(cam)
-        cam = resize(cam, (image.shape[0], image.shape[1]))
+        cam = resize(cam, (image.shape[1], image.shape[2]))
         
         cam = np.asarray(cam*255, dtype=np.uint8)
         cam = np.clip(cam, 0, 255)
@@ -101,11 +101,15 @@ def stack_images(frame, faces, cams, shape=(1000,1000,3)):
     faces = [resize(k, (h,w)) for k in faces]
     cams = [resize(k, (h,w)) for k in cams]
     
+
     # preprocessing
     frame = preprocess_uint8(frame)
     faces = preprocess_uint8(faces)
     cams = preprocess_uint8(cams)
     
+    print('faces shape: ', faces.shape)
+    print('cams shape: ', cams.shape)
+
     fc_stack = np.hstack(faces)
     cm_stack = np.hstack(cams)
     info_stack = np.vstack([fc_stack, cm_stack])
