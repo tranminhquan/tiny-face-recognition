@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 from skimage.transform import resize
 
-def visualize_cam(model, image, last_conv_layer_index, learning_phase=0, path_to_save=None):
+def visualize_cam(model, func, image, last_conv_layer_index, path_to_save=None):
     '''
   visualize class activation map function
   ----------------------------------------
@@ -22,8 +22,8 @@ def visualize_cam(model, image, last_conv_layer_index, learning_phase=0, path_to
     class_weights = model.layers[-3].get_weights()[0]
 
     '''Create the function to get last conv layer output and model output'''
-    last_conv_layer = model.layers[last_conv_layer_index].output
-    get_output = K.function([model.input, K.learning_phase()], [last_conv_layer, model.output])
+    # last_conv_layer = model.layers[last_conv_layer_index].output
+    # get_output = K.function([model.input, K.learning_phase()], [last_conv_layer, model.output])
     img = image
 #     img = np.array([np.transpose(np.float32(image), (0, 1, 2))])
     # img = np.asarray(image, dtype='float')
@@ -32,7 +32,7 @@ def visualize_cam(model, image, last_conv_layer_index, learning_phase=0, path_to
         
     # img = np.expand_dims(img, axis=0)
 
-    [conv_outputs, predictions] = get_output([img, learning_phase])
+    [conv_outputs, predictions] = func([img, K.learning_phase()])
     conv_outputs = conv_outputs[0,:,:,:]
 
     '''Create the class activation map'''

@@ -23,11 +23,14 @@ class FaceRecognition():
     '''
     def __init__(self, model_paths=None, label_dict_path=None):
         with graph.as_default():
+            K.set_learning_phase(0)
+
             m_paths = os.listdir(os.path.join(os.path.dirname(__file__), 'demo'))
             # print(m_paths)
 
             self.models = [load_model(os.path.join(os.path.dirname(__file__), 'demo', path)) for path in m_paths]
             self.sizes = [k.input_shape[1] for k in self.models]
+            self.funcs = [K.function([model.input, K.learning_phase()], [model.layers[-5].output, model.output]) for model in self.models]
             
             print(len(self.models), ' models with sizes: ', self.sizes)
 
@@ -111,8 +114,8 @@ class FaceRecognition():
 
             image = np.expand_dims(image, axis=0)
             
-            num_label, prob, cam = visualize_cam(self.models[model_index], image, last_conv_layer_index=-5, learning_phase=0)
-            print(num_label)
+            num_label, prob, cam = visualize_cam(self.models[model_index], self.funcs[model_index], image, last_conv_layer_index=-5, learning_phase=0)
+            # print(num_label)
             
             try:
                 str_label = self.label_dict[str(num_label[0])]
