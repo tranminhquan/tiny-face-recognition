@@ -69,21 +69,26 @@ def preprocess_uint8(image):
 
 def stack_images(frame, faces, cams, shape=(1000,1000,3)):
     rs = np.zeros(shape)
-    frame = preprocess_uint8(frame)
-
+    frame = preprocess_uint8(frame)   
+    
     if faces is None or cams is None or len(faces) == 0:
         rs[0:frame.shape[0], 0:frame.shape[1], :] = frame
         rs = np.asarray(rs, dtype=np.uint8)
         return rs
-
+    
+    h = int(np.mean(np.array([k.shape[0] for k in faces])))
+    w = int(np.mean(np.array([k.shape[1] for k in faces])))
+    
+    # resize
+    faces = [resize(k, (h,w)) for k in faces]
+    cams = [resize(k, (h,w)) for k in cams]
     
     faces = preprocess_uint8(faces)
     cams = preprocess_uint8(cams)
     
-    
-    h = np.mean(np.array([k.shape[0] for k in faces]))
-    w = np.mean(np.array([k.shape[1] for k in faces]))
-  
+    print('frame shape: ', frame.shape)
+    print('faces shape: ', faces.shape)
+    print('cams shape: ', cams.shape)
     
     # expand dims if needed
     if len(faces[0].shape)==2:
@@ -97,19 +102,13 @@ def stack_images(frame, faces, cams, shape=(1000,1000,3)):
     if cams[0].shape[-1] == 1:
         cams = [cv2.cvtColor(k, cv2.COLOR_GRAY2BGR) for k in cams]
     
-    # resize
-    faces = [resize(k, (h,w)) for k in faces]
-    cams = [resize(k, (h,w)) for k in cams]
     
-
+    
     # preprocessing
     frame = preprocess_uint8(frame)
     faces = preprocess_uint8(faces)
     cams = preprocess_uint8(cams)
     
-    print('faces shape: ', faces.shape)
-    print('cams shape: ', cams.shape)
-
     fc_stack = np.hstack(faces)
     cm_stack = np.hstack(cams)
     info_stack = np.vstack([fc_stack, cm_stack])
@@ -118,8 +117,13 @@ def stack_images(frame, faces, cams, shape=(1000,1000,3)):
     rs[0: info_stack.shape[0], -info_stack.shape[1]:, :] = info_stack
     
     rs = np.asarray(rs, dtype=np.uint8)
-   
+    
+    print('frame shape: ', frame.shape)
+    print('faces shape: ', faces.shape)
+    print('cams shape: ', cams.shape)
+    
     return rs
+    
     
     
     
