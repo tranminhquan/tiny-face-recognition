@@ -4,6 +4,7 @@ os.sys.path.append(dirname)
 
 from flask import Response
 from flask_restful import fields, marshal_with, reqparse, Resource
+from skimage.transform import resize
 import io
 from ..ai.models.cv.detection import FaceDetection
 from ..ai.models.cv.recognition import FaceRecognition
@@ -21,6 +22,9 @@ import requests
 colab_url = 'http://cff575e4.ngrok.io/' + '/recognize'
 addr = 'rtsp://admin:admin@192.168.3.22:554' ### user= admin, pass = admin
 
+FRAME_WIDTH = 640
+FRAME_HEIGHT = 480
+
 class Stream(Resource):
     def __init__(self):
         super()
@@ -37,9 +41,9 @@ class Stream(Resource):
         self.label = None
         self.prob = None
 
-        self.t_post = threading.Thread(target=self.post)
-        self.t_post.daemon = True
-        self.t_post.start()
+        #self.t_post = threading.Thread(target=self.post)
+        #self.t_post.daemon = True
+        #self.t_post.start()
 
 
     def gen(self):
@@ -74,7 +78,7 @@ class Stream(Resource):
                         # _, self.label, self.prob = self.predictor.predict(fr, None)
 
                         _, self.label, self.prob, cam = self.predictor.predict_with_heatmap(fr, None)
-                        print(cam)
+                        #print(cam)
                         cams.append(cam)
                         cv2.putText(tframe, str(self.label) + ': ' + str(self.prob), (10 + 400*i,30), 
                                     font, font_scale, colors[i], line_type)
@@ -82,10 +86,16 @@ class Stream(Resource):
                 #encode_return_code, image_buffer = cv2.imencode('.jpg', tframe)
 
                 # encoded_frame = stack_images(tframe, self.cropped_frame, cams)
-                encode_return_code, image_buffer = cv2.imencode('.jpg', tframe)
+                    tframe = resize(tframe, (FRAME_HEIGHT, FRAME_WIDTH))
+                    tframe = np.asarray(tframe*255, dtype=np.uint8)
+                    rs = stack_images(tframe, self.cropped_frame, cams)
+                    print(rs)
+                    encode_return_code, image_buffer = cv2.imencode('.jpg', rs)
 
             except:
                 cv2.putText(frame, 'No detection', (10,30), font, font_scale, font_color, line_type)
+                frame = resize(frame, (FRAME_HEIGHT, FRAME_WIDTH))
+                frame = np.asarray(frame*255, dtype=np.uint8)
                 encode_return_code, image_buffer = cv2.imencode('.jpg', frame)
 
             io_buf = io.BytesIO(image_buffer)

@@ -5,8 +5,11 @@ from ..models.cv.detection import FaceDetection
 import numpy as np
 
 class VideoCapture:
-    def __init__(self, name):
+    def __init__(self, name, width=640, height=480):
         self.cap = cv2.VideoCapture(name)
+        self.cap.set(3, int(width))
+        self.cap.set(4, int(height))
+        print('camera resolution: ', self.cap.get(3), self.cap.get(4))
         # self.detector = FaceDetection()
         # self.predictor = FaceRecognition(['demo_face_model.hdf5'], 'demo_label_dict.hdf5')
         # self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 256)

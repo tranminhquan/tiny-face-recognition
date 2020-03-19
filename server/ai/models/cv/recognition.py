@@ -38,6 +38,8 @@ class FaceRecognition():
             with open(os.path.join(os.path.dirname(__file__), label_dict_path), 'rb') as dt:
                 self.label_dict = pickle.load(dt)
 
+            print(self.label_dict)
+
     def predict(self, image, model_index=None):
         '''
         predict label of image based on index of loaded model
@@ -114,12 +116,13 @@ class FaceRecognition():
             image = np.expand_dims(image, axis=0)
             
             num_label, prob, cam = visualize_cam(self.models[model_index], self.funcs[model_index], image)
-            print(num_label)
             
             try:
-                str_label = self.label_dict[str(num_label[0])]
+                str_label = self.label_dict[str(num_label)]
             except:
                 str_label = None
+
+            print(num_label, str_label)
 
             return num_label, str_label, prob, cam
 
