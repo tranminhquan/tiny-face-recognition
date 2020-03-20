@@ -23,17 +23,10 @@ class FaceRecognition():
     '''
     def __init__(self, model_paths=None, label_dict_path=None):
         with graph.as_default():
-<<<<<<< HEAD
-            m_paths = os.listdir(os.path.join(os.path.dirname(__file__), 'demo'))
-            # print(m_paths)
-
-            self.models = [load_model(os.path.join(os.path.dirname(__file__), 'demo', path)) for path in m_paths]
-=======
             m_paths = os.listdir(os.path.join(os.path.dirname(__file__), 'demo_3'))
             # print(m_paths)
 
             self.models = [load_model(os.path.join(os.path.dirname(__file__), 'demo_3', path)) for path in m_paths]
->>>>>>> e94cd64b31cd9b39881c45f4b3a63c816bd2f3b5
             self.sizes = [k.input_shape[1] for k in self.models]
             self.funcs = [K.function([model.input, K.learning_phase()], [model.layers[-5].output, model.output]) for model in self.models]
             
